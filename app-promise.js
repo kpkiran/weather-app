@@ -1,15 +1,22 @@
 const yargs = require('yargs');
 const axios = require('axios');
-//const args = require('yargs-default-command')(yargs);
 
-//const argv = yargs
-//args
 const argv = yargs
     .options({
         a: {
             //demand: flase,
             alias: 'address',
             describe: 'Address to get weather for',
+            string: true
+        },
+        c: {
+            alias: 'celcius',
+            describe: 'Temperature in celcius',
+            string: true
+        },
+        f: {
+            alias: 'fahrenheit',
+            describe: 'Temperature in fahrenheit',
             string: true
         }
     })
@@ -39,7 +46,23 @@ axios.get(geoCodeURL).then((res) => {
 }).then((res) => {
     var temperature = res.data.currently.temperature;
     var apparentTemperature = res.data.currently.apparentTemperature;
-    console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`)
+
+    var fahrenheitTemperature = temperature / (5 / 9) + 32;
+    var apparentFahrenheitTemperature = apparentTemperature / (5 / 9) + 32;
+
+    if (argv._[0] === 'c' && argv._[1] === 'f') {
+        console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
+        console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
+    } else if (argv._[0] !== 'c' && argv._[1] === 'f') {
+        console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
+    } else if (argv._[0] === 'c' && argv._[1] !== 'f') {
+        console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
+    } else if (argv._[0] === 'f') {
+        console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
+    } else if (argv._[0] === 'c') {
+        console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
+    }
+
 }).catch((err) => {
     if (err.code === 'ENOTFOUND') {
         console.log('Unable to connect to API servers');
