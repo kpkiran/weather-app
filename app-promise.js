@@ -1,5 +1,6 @@
 const yargs = require('yargs');
 const axios = require('axios');
+var config = require('./config');
 
 const argv = yargs
     .options({
@@ -20,14 +21,20 @@ const argv = yargs
             string: true
         }
     })
-    .command('*', 'the default command', () => {}, (argv) => {
-        argv.address = argv.address || '81 4 riverpark drive liverpool nsw';
-    })
+    // .command('*', 'the default command', () => {}, (argv) => {
+    //     argv.address = argv.address || config.address;
+    // })
     .help()
     .alias('help', 'h')
     .argv;
 
-var encodedAddress = encodeURIComponent(argv.address);
+if (argv.address) {
+    var encodedAddress = encodeURIComponent(argv.address);
+} else {
+    var encodedAddress = encodeURIComponent(config.address);
+}
+
+console.log('Encoded address is ', encodedAddress);
 geoCodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}`
 
 axios.get(geoCodeURL).then((res) => {
@@ -50,17 +57,12 @@ axios.get(geoCodeURL).then((res) => {
     var fahrenheitTemperature = temperature / (5 / 9) + 32;
     var apparentFahrenheitTemperature = apparentTemperature / (5 / 9) + 32;
 
-    if (argv._[0] === 'c' && argv._[1] === 'f') {
+    if (argv._.includes('c')) {
         console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
+    }
+
+    if (argv._.includes('f')) {
         console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
-    } else if (argv._[0] !== 'c' && argv._[1] === 'f') {
-        console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
-    } else if (argv._[0] === 'c' && argv._[1] !== 'f') {
-        console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
-    } else if (argv._[0] === 'f') {
-        console.log(`It is currently ${fahrenheitTemperature} in fahrenheit but it seems as ${apparentFahrenheitTemperature} in fahrenheit`);
-    } else if (argv._[0] === 'c') {
-        console.log(`It is currently ${temperature} but it seems as ${apparentTemperature}`);
     }
 
 }).catch((err) => {
